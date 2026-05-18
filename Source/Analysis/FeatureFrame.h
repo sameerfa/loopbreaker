@@ -18,7 +18,9 @@ struct FeatureFrame final
     float midEnergy { 0.f };
     float highEnergy { 0.f };
 
+    /** Normalized ~Hz/Nyquist centroid proxy from band energies (**no FFT** in current extractor — see `AudioFeatureExtractor`). */
     float spectralCentroid { 0.f };
+    /** L1 change vs previous hop of band shares — flux proxy without FFT. */
     float spectralFlux { 0.f };
 
     float transientDensity { 0.f };

@@ -56,7 +56,8 @@ target_compile_definitions(LoopBreaker
 # --- Analysis STATIC lib (Phase 2+): shared between plugin & unit tests ---------------------------
 # (STATIC avoids embedding JUCE .o twice; OBJECT+module link duplicates symbols in consumers.)
 add_library(loopbreaker_analysis STATIC
-    Source/Analysis/AnalysisModels.cpp)
+    Source/Analysis/AnalysisModels.cpp
+    Source/Analysis/AudioFeatureExtractor.cpp)
 
 set_target_properties(loopbreaker_analysis PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -65,7 +66,7 @@ target_compile_features(loopbreaker_analysis PUBLIC cxx_std_20)
 target_include_directories(loopbreaker_analysis PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source>)
 
-target_link_libraries(loopbreaker_analysis PUBLIC juce::juce_core)
+target_link_libraries(loopbreaker_analysis PUBLIC juce::juce_core juce::juce_dsp)
 
 target_link_libraries(
     LoopBreaker
