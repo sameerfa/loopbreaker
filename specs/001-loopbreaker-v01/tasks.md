@@ -33,13 +33,13 @@ description: Task list for LoopBreaker v0.1 (JUCE 8 CMake VST3)
 
 ⚠️ **No user-story feature work completes until Phase 2 is done.**
 
-- [ ] T003 Declare **`add_library(loopbreaker_analysis OBJECT …)`** in **`CMakeLists.txt`** listing **`Source/Analysis/*.cpp`**; link OBJECT into **`juce_add_plugin`** target **and** test executable from **T009**.
-- [ ] T004 Add **`Source/Analysis/FeatureFrame.h`** per [data-model.md](./data-model.md) (dense per-segment floats + **`segmentIndex`**).
-- [ ] T005 **[P]** Add **`Source/Analysis/AnalysisSnapshot.h`** (snapshot fields + **`TimingMode`**) matching [contracts/thread_handoff.md](./contracts/thread_handoff.md); include **`std::mutex`** + optional **`std::atomic` analyze generation** helpers.
+- [x] T003 Declare **`add_library(loopbreaker_analysis …)`** in **`CMakeLists.txt`** listing **`Source/Analysis/*.cpp`**; link into **`juce_add_plugin`** target **and** test executable from **T009**. **Note:** CMake uses **`STATIC`** (not **OBJECT**) so **`juce::juce_core`** is not linked twice when `LoopBreakerAnalysisTests` also consumes the analysis library—revisit **OBJECT** when extractor `.cpp` split stabilizes.
+- [x] T004 Add **`Source/Analysis/FeatureFrame.h`** per [data-model.md](./data-model.md) (dense per-segment floats + **`segmentIndex`**).
+- [x] T005 **[P]** Add **`Source/Analysis/AnalysisSnapshot.h`** (snapshot fields + **`TimingMode`**) matching [contracts/thread_handoff.md](./contracts/thread_handoff.md); include **`std::mutex`** + optional **`std::atomic` analyze generation** helpers.
 - [ ] T006 **[P]** Scaffold **`Source/Analysis/AudioFeatureExtractor.h`** + **`Source/Analysis/AudioFeatureExtractor.cpp`** — public **`run`**: planar PCM + sample count + **`double sampleRate`** → **`std::vector<FeatureFrame>`** (no `PluginEditor`/GUI includes).
 - [ ] T007 **[P]** Scaffold **`Source/Analysis/LoopAnalyzer.h`** + **`Source/Analysis/LoopAnalyzer.cpp`** — **`analyze(std::span<const FeatureFrame> or vector)` →** metrics POD + **`uint8_t` staticness** stub output type you define.
 - [ ] T008 **[P]** Scaffold **`Source/Analysis/SuggestionEngine.h`** + **`Source/Analysis/SuggestionEngine.cpp`** — **`Suggest(metrics) → std::array<juce::String, 3>`** deterministic stub.
-- [ ] T009 Add **`tests/LoopBreakerAnalysisTests.cpp`** registering **`juce::UnitTest`** suites + CMake target **`LoopBreakerAnalysisTests`** linking **`loopbreaker_analysis` OBJECT** and JUCE **`UnitTest` runner** linkage per JUCE CMake docs.
+- [x] T009 Add **`tests/LoopBreakerAnalysisTests.cpp`** registering **`juce::UnitTest`** suites + CMake target **`LoopBreakerAnalysisTests`** linking **`loopbreaker_analysis`** and JUCE **`UnitTest`** runner (**data-model** category only for now—**`T012+`** extend suites).
 
 **Realtime capture scaffolding**
 

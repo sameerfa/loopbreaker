@@ -12,6 +12,13 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ```
 
+Analysis **`UnitTest`** harness (data-model today; grows with **`tasks T012+`**):
+
+```bash
+cmake --build build --target LoopBreakerAnalysisTests
+ctest --test-dir build --output-on-failure -R LoopBreakerAnalysisTests
+```
+
 Built VST3 is emitted under `LoopBreaker_artefacts/Release/VST3/` (exact path follows JUCE’s CMake layout).
 
 ## Spec Kit

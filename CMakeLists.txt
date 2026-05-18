@@ -53,9 +53,24 @@ target_compile_definitions(LoopBreaker
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
+# --- Analysis STATIC lib (Phase 2+): shared between plugin & unit tests ---------------------------
+# (STATIC avoids embedding JUCE .o twice; OBJECT+module link duplicates symbols in consumers.)
+add_library(loopbreaker_analysis STATIC
+    Source/Analysis/AnalysisModels.cpp)
+
+set_target_properties(loopbreaker_analysis PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+target_compile_features(loopbreaker_analysis PUBLIC cxx_std_20)
+
+target_include_directories(loopbreaker_analysis PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source>)
+
+target_link_libraries(loopbreaker_analysis PUBLIC juce::juce_core)
+
 target_link_libraries(
     LoopBreaker
     PRIVATE
+        loopbreaker_analysis
         juce::juce_audio_processors
         juce::juce_dsp
         juce::juce_gui_basics
@@ -63,3 +78,25 @@ target_link_libraries(
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+# --- Minimal console test harness (extended in T012+ with DSP suites) --------------------------------
+juce_add_console_app(LoopBreakerAnalysisTests
+    COMPANY_NAME "LoopBreaker"
+    PRODUCT_NAME "LoopBreakerAnalysisTests")
+
+target_sources(LoopBreakerAnalysisTests PRIVATE
+    tests/LoopBreakerAnalysisTests.cpp)
+
+target_compile_definitions(LoopBreakerAnalysisTests PRIVATE
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0)
+
+target_link_libraries(LoopBreakerAnalysisTests PRIVATE
+    loopbreaker_analysis
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_warning_flags)
+
+enable_testing()
+
+add_test(NAME LoopBreakerAnalysisTests COMMAND LoopBreakerAnalysisTests)
