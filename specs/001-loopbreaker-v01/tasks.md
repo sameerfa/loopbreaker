@@ -43,8 +43,8 @@ description: Task list for LoopBreaker v0.1 (JUCE 8 CMake VST3)
 
 **Realtime capture scaffolding**
 
-- [ ] T010 Implement **`PluginProcessor::prepareToPlay`** in **`Source/PluginProcessor.cpp`** — preallocate planar **L/R capture** sized from **max 32 bars**, **4/4 MVP constant**, **`kMinTempoBpm` clamp**, current sample rate; define **`constexpr double kMinQualifyingRecordedSeconds`** (document nominal value **`1.0` s** in **`plan.md`**) reused for rejecting seal/analyze on ultra-short taps per **spec FR‑016** (**error**/incomplete—not **complete**); preallocate extractor/analyzer scratch resized **outside** `processBlock` ([research.md](./research.md)).
-- [ ] T011 Implement **`PluginProcessor::processBlock`** realtime path **`Source/PluginProcessor.cpp`** — append-only PCM while **`Recording`** && transport playing; **no allocation/blocking/FFT/log spam on audio thread** ([constitution §II](../../.specify/memory/constitution.md)).
+- [x] T010 Implement **`PluginProcessor::prepareToPlay`** in **`Source/PluginProcessor.cpp`** — preallocate planar **L/R capture** sized from **max 32 bars**, **4/4 MVP constant**, **`kMinTempoBpm` clamp**, current sample rate; define **`constexpr double kMinQualifyingRecordedSeconds`** (document nominal value **`1.0` s** in **`plan.md`**) reused for rejecting seal/analyze on ultra-short taps per **spec FR‑016** (**error**/incomplete—not **complete**); preallocate extractor/analyzer scratch resized **outside** `processBlock` ([research.md](./research.md)).
+- [x] T011 Implement **`PluginProcessor::processBlock`** realtime path **`Source/PluginProcessor.cpp`** — append-only PCM while **`Recording`** && transport playing; **no allocation/blocking/FFT/log spam on audio thread** ([constitution §II](../../.specify/memory/constitution.md)).
 
 **Checkpoint**: Plugin loads + stub tests executable links + **`processBlock` append-only** survives simple session.
 

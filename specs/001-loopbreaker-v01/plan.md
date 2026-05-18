@@ -47,6 +47,7 @@
 | **Format** | **VST3 bundle only** |
 | **Realtime rule** | `processBlock`: **copy + bookkeeping only** — see audit table |
 | **Scope cut** | No AU/AAX/CLAP, Windows, cloud, RubberBand/external spectral libs unless JUCE dsp proves insufficient, ONNX, presets DB |
+| **`kMinQualifyingRecordedSeconds`** | **`1.0` s** contiguous audio minimum before **`Analyze`** (**FR‑016**); **`PluginProcessor::kMinQualifyingRecordedSeconds`** |
 
 ---
 
