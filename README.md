@@ -2,6 +2,10 @@
 
 Short-loop movement-feedback audio plug-in (**v0.1** roadmap in `specs/001-loopbreaker-v01/`).
 
+## Resume / handoff
+
+Start with [**`docs/PROJECT_MEMORY.md`**](docs/PROJECT_MEMORY.md) for what’s done, gaps, and suggested next steps; the canonical checklist remains [**`specs/001-loopbreaker-v01/tasks.md`**](specs/001-loopbreaker-v01/tasks.md).
+
 ## Build (macOS, VST3)
 
 1. Add JUCE **8.x** at `third_party/JUCE/` — see **`third_party/README.md`** (`git submodule` recommended; **no** FetchContent/network policy per `CMakeLists.txt` comments).
