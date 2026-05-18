@@ -20,8 +20,8 @@ description: Task list for LoopBreaker v0.1 (JUCE 8 CMake VST3)
 
 **Purpose**: Repo + CMake so VST and tests share **`OBJECT`** analysis sources ([plan.md](./plan.md)).
 
-- [ ] T001 Create root **`CMakeLists.txt`** with C++20, **JUCE 8** wired from a **pinned git submodule** **or** local **vendor copy** (`third_party/JUCE` or equivalent)—**no** `FetchContent` / `ExternalProject` / `file(DOWNLOAD)` that retrieves JUCE over the network at configure time; **`juce_add_plugin`** (**macOS VST3 only**); minimal modules **`juce_audio_processors`**, **`juce_dsp`**, **`juce_gui_basics`**; **product runtime** MUST NOT initiate outbound network I/O (**FR‑012**/constitution offline); document the submodule/vendor rule in CMake comments and **`README`/quickstart** as needed.
-- [ ] T002 Create layout **`Source/`**, **`Source/Analysis/`**, **`tests/`** and stub **`Source/PluginProcessor.cpp`**, **`Source/PluginProcessor.h`**, **`Source/PluginEditor.cpp`**, **`Source/PluginEditor.h`** wired into CMake.
+- [x] T001 Create root **`CMakeLists.txt`** with C++20, **JUCE 8** wired from a **pinned git submodule** **or** local **vendor copy** (`third_party/JUCE` or equivalent)—**no** `FetchContent` / `ExternalProject` / `file(DOWNLOAD)` that retrieves JUCE over the network at configure time; **`juce_add_plugin`** (**macOS VST3 only**); minimal modules **`juce_audio_processors`**, **`juce_dsp`**, **`juce_gui_basics`**; **product runtime** MUST NOT initiate outbound network I/O (**FR‑012**/constitution offline); document the submodule/vendor rule in CMake comments and **`README`/quickstart** as needed.
+- [x] T002 Create layout **`Source/`**, **`Source/Analysis/`**, **`tests/`** and stub **`Source/PluginProcessor.cpp`**, **`Source/PluginProcessor.h`**, **`Source/PluginEditor.cpp`**, **`Source/PluginEditor.h`** wired into CMake.
 
 **Checkpoint**: Configure + build emits a (possibly stub) **`.vst3`** bundle target.
 
