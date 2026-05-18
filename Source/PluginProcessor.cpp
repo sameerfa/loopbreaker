@@ -190,6 +190,17 @@ void PluginProcessor::sealRecordingFromUi()
     sealRequested.store (true, std::memory_order_release);
 }
 
+int PluginProcessor::getRequestedLoopBars() const noexcept
+{
+    return requestedLoopBars.load (std::memory_order_relaxed);
+}
+
+void PluginProcessor::setRequestedLoopBarsFromUi (int bars)
+{
+    if (bars == 8 || bars == 16 || bars == kMaxCaptureBars)
+        requestedLoopBars.store (bars, std::memory_order_relaxed);
+}
+
 void PluginProcessor::scheduleSealAndAnalyze (size_t numSamplesCaptured, uint32_t generationSnapshot)
 {
     juce::MessageManager::callAsync ([this, numSamplesCaptured, generationSnapshot]

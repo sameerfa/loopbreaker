@@ -61,6 +61,11 @@ public:
     /** Stop button: seals buffer on audio thread then runs extractor/analyzer/suggestions on message thread. */
     void sealRecordingFromUi();
 
+    /** Producer-selected capture span (**spec FR‑002**): **8**, **16**, or **32** bars only (defaults **32**). */
+    [[nodiscard]] int getRequestedLoopBars() const noexcept;
+
+    void setRequestedLoopBarsFromUi (int bars);
+
 private:
     [[nodiscard]] bool queryTransportPlaying() const noexcept;
 
@@ -89,6 +94,8 @@ private:
 
     /** Mirrors **`TimingMode`** gate chosen under **`publishSlot.mutex`** at arm — audio thread reads without locking. */
     std::atomic<bool> armedUsesTransportPlayingGate { false };
+
+    std::atomic<int> requestedLoopBars { kMaxCaptureBars };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };
