@@ -37,7 +37,7 @@ description: Task list for LoopBreaker v0.1 (JUCE 8 CMake VST3)
 - [x] T004 Add **`Source/Analysis/FeatureFrame.h`** per [data-model.md](./data-model.md) (dense per-segment floats + **`segmentIndex`**).
 - [x] T005 **[P]** Add **`Source/Analysis/AnalysisSnapshot.h`** (snapshot fields + **`TimingMode`**) matching [contracts/thread_handoff.md](./contracts/thread_handoff.md); include **`std::mutex`** + optional **`std::atomic` analyze generation** helpers.
 - [x] T006 **[P]** Scaffold **`Source/Analysis/AudioFeatureExtractor.h`** + **`Source/Analysis/AudioFeatureExtractor.cpp`** — public **`run`**: planar PCM + sample count + **`double sampleRate`** → **`std::vector<FeatureFrame>`** (no `PluginEditor`/GUI includes). **Implemented:** RMS/peak/bands/stereo-width/transient + band-derived centroid/flux proxies (**no FFT** this sprint — research FFT path deferred).
-- [ ] T007 **[P]** Scaffold **`Source/Analysis/LoopAnalyzer.h`** + **`Source/Analysis/LoopAnalyzer.cpp`** — **`analyze(std::span<const FeatureFrame> or vector)` →** metrics POD + **`uint8_t` staticness** stub output type you define.
+- [x] T007 **[P]** Scaffold **`Source/Analysis/LoopAnalyzer.h`** + **`Source/Analysis/LoopAnalyzer.cpp`** — **`analyze(std::span<const FeatureFrame> or vector)` →** metrics POD + **`uint8_t` staticness** stub output type you define.
 - [ ] T008 **[P]** Scaffold **`Source/Analysis/SuggestionEngine.h`** + **`Source/Analysis/SuggestionEngine.cpp`** — **`Suggest(metrics) → std::array<juce::String, 3>`** deterministic stub.
 - [x] T009 Add **`tests/LoopBreakerAnalysisTests.cpp`** registering **`juce::UnitTest`** suites + CMake target **`LoopBreakerAnalysisTests`** linking **`loopbreaker_analysis`** and JUCE **`UnitTest`** runner (**data-model** category only for now—**`T012+`** extend suites).
 
@@ -61,14 +61,14 @@ description: Task list for LoopBreaker v0.1 (JUCE 8 CMake VST3)
 > Strengthen **`tests/LoopBreakerAnalysisTests.cpp`** while completing **T016–T018**.
 
 - [ ] T012 **[P]** [US1] Add **`AudioFeatureExtractor` unit tests** (flat sine / simple chirp energy sanity) in **`tests/LoopBreakerAnalysisTests.cpp`**.
-- [ ] T013 **[P]** [US1] Add **`LoopAnalyzer` unit tests** flat vs trending **staticness ordering** (“loop comparison”) in **`tests/LoopBreakerAnalysisTests.cpp`** ([plan.md](./plan.md) audit).
+- [x] T013 **[P]** [US1] Add **`LoopAnalyzer` unit tests** flat vs trending **staticness ordering** (“loop comparison”) in **`tests/LoopBreakerAnalysisTests.cpp`** ([plan.md](./plan.md) audit).
 - [ ] T014 **[P]** [US1] Add **`SuggestionEngine` unit tests** pinned metrics → exact three **`juce::String`** (**no RNG**) **`tests/LoopBreakerAnalysisTests.cpp`**.
 - [ ] T015 [US1] Add **pipeline `UnitTest`**: synthetic planar buffer → **`AudioFeatureExtractor` → `LoopAnalyzer` → `SuggestionEngine`** deterministic **`tests/LoopBreakerAnalysisTests.cpp`** ([plan.md](./plan.md)).
 
 ### Implementation **[US1]**
 
 - [ ] T016 [US1] Flesh **`Source/Analysis/AudioFeatureExtractor.cpp`** — RMS, peak, band energies, **offline `juce_dsp::FFT`** centroid & flux (**fixed FFT order**, init off audio thread), transient-density heuristic, stereo width (**constitution §III**); include **near-silence / clipping extremes** tiers so surfaced movement cannot read as artificially “perfect” without honest guardrail copy (**spec §Edge Cases** third bullet)—note expectation in **`specs/001-loopbreaker-v01/qa/staticness-thresholds.md`** when present.
-- [ ] T017 [US1] Flesh **`Source/Analysis/LoopAnalyzer.cpp`** — aggregate frames → **`staticness` 0–100**, movement aggregates, headline string inputs for UI (**spec §FR‑005–§FR‑009**).
+- [x] T017 [US1] Flesh **`Source/Analysis/LoopAnalyzer.cpp`** — aggregate frames → **`staticness` 0–100**, movement aggregates, headline string inputs for UI (**spec §FR‑005–§FR‑009**).
 - [ ] T018 [US1] Flesh **`Source/Analysis/SuggestionEngine.cpp`** — deterministic rule tables → exactly **three** actionable honest lines (**spec §FR‑010/§FR‑011**).
 - [ ] T019 [US1] Implement **Host-aligned vs Fallback timing** (**coarse bar count** vs manual stop), verbatim fallback banner **`Timing unavailable: using captured duration only.`**, **seal** + **`juce::MessageManager::callAsync`** analyzer wiring + **`std::mutex` snapshot publish** **`Source/PluginProcessor.cpp`** ([spec Clarifications](./spec.md)); freeze **effective timing mode per Analyze arm** (`TimingMode`)—if coherence is lost mid-capture (**spec §Edge Cases**) treat as **`error`/guarded incomplete** + require re-arm (no silent flip to spoof **complete**); if Fallback is active and reliable host cues **appear** mid-pass, remain on Fallback UI/banner semantics until the producer re-arms (**spec §Edge Cases**, [plan](./plan.md) timing transition row).
 - [ ] T020 [US1] Implement **minimal UI** **`Source/PluginEditor.cpp/.h`** — Analyze/Stop, **8 | 16 | 32 bars** selector, status label, staticness numeric, concise summary block (energy / LM–H / transient / stereo), **three suggestion lines/cards**, timer-copy snapshot (**constitution §VI**); include **≤140 words** onboarding / help (**read-only** control acceptable) fulfilling **spec SC‑001**.

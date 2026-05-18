@@ -57,7 +57,8 @@ target_compile_definitions(LoopBreaker
 # (STATIC avoids embedding JUCE .o twice; OBJECT+module link duplicates symbols in consumers.)
 add_library(loopbreaker_analysis STATIC
     Source/Analysis/AnalysisModels.cpp
-    Source/Analysis/AudioFeatureExtractor.cpp)
+    Source/Analysis/AudioFeatureExtractor.cpp
+    Source/Analysis/LoopAnalyzer.cpp)
 
 set_target_properties(loopbreaker_analysis PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
