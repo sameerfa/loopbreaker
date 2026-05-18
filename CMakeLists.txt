@@ -58,7 +58,8 @@ target_compile_definitions(LoopBreaker
 add_library(loopbreaker_analysis STATIC
     Source/Analysis/AnalysisModels.cpp
     Source/Analysis/AudioFeatureExtractor.cpp
-    Source/Analysis/LoopAnalyzer.cpp)
+    Source/Analysis/LoopAnalyzer.cpp
+    Source/Analysis/SuggestionEngine.cpp)
 
 set_target_properties(loopbreaker_analysis PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

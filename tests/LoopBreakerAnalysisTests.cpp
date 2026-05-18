@@ -1,7 +1,8 @@
 /*
   JUCE `UnitTest` runner (`loopbreaker` category).
 
-  Covers data-model structs, **`LoopAnalyzer`** aggregation, plus **`AudioFeatureExtractor`** band extraction (**no FFT**).
+  Covers data-model structs, **`LoopAnalyzer`** aggregation, **`SuggestionEngine`** rule deck,
+  plus **`AudioFeatureExtractor`** band extraction (**no FFT**).
 */
 
 #include <cmath>
@@ -16,6 +17,7 @@
 #include <Analysis/FeatureFrame.h>
 #include <Analysis/LoopAnalyzer.h>
 #include <Analysis/LoopMetrics.h>
+#include <Analysis/SuggestionEngine.h>
 
 namespace loopbreaker {
 
@@ -277,6 +279,183 @@ public:
 };
 
 static LoopAnalyzerTests loopAnalyzerTests;
+
+class SuggestionEngineTests final : public juce::UnitTest
+{
+public:
+    SuggestionEngineTests() : juce::UnitTest ("suggestion_engine", "loopbreaker") {}
+
+    void runTest() override
+    {
+        beginTest ("high staticness pulls very-static rule first");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 85;
+            m.highBandShare = 0.05f;
+            m.midBandShare = 0.48f;
+            m.lowBandShare = 0.47f;
+            m.transientVariation = 5.0e-4f;
+            m.stereoWidthApplicable = false;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("The loop is very static. Add movement after bar 4 or 8."));
+            expectEquals (
+                deck[1].text,
+                juce::String ("High-frequency activity is low. Try hats, noise, shimmer, or top percussion."));
+            expectEquals (
+                deck[2].text,
+                juce::String ("Consider opening space with a short breakdown before the loop repeats."));
+        }
+
+        beginTest ("low high-band share triggers HF hint");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 40;
+            m.highBandShare = 0.05f;
+            m.midBandShare = 0.40f;
+            m.lowBandShare = 0.55f;
+            m.transientVariation = 2.0e-4f;
+            m.stereoWidthApplicable = false;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("High-frequency activity is low. Try hats, noise, shimmer, or top percussion."));
+        }
+
+        beginTest ("flat transient variance triggers rhythmic-density hint");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 45;
+            m.highBandShare = 0.30f;
+            m.midBandShare = 0.35f;
+            m.lowBandShare = 0.35f;
+            m.transientVariation = 0.f;
+            m.stereoWidthApplicable = false;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("Rhythmic density barely changes. Add a fill, mute drums for a bar, or introduce percussion later."));
+        }
+
+        beginTest ("flat stereo trend triggers stereo hint when applicable");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 42;
+            m.highBandShare = 0.28f;
+            m.midBandShare = 0.36f;
+            m.lowBandShare = 0.36f;
+            m.transientVariation = 5.0e-4f;
+            m.stereoWidthApplicable = true;
+            m.stereoWidthTrend = 0.f;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("Stereo width stays flat. Try widening one non-bass element in the second half."));
+        }
+
+        beginTest ("low-end dominates triggers bass-contrast hint");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 44;
+            m.lowBandShare = 0.59f;
+            m.midBandShare = 0.21f;
+            m.highBandShare = 0.20f;
+            m.transientVariation = 5.0e-4f;
+            m.stereoWidthApplicable = false;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("Low-end dominates the section. Add mid/high contrast or remove bass briefly before the next section."));
+        }
+
+        beginTest ("rule priority keeps first three slots in evaluation order");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 85;
+            m.highBandShare = 0.05f;
+            m.midBandShare = 0.40f;
+            m.lowBandShare = 0.55f;
+            m.transientVariation = 0.f;
+            m.stereoWidthApplicable = false;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("The loop is very static. Add movement after bar 4 or 8."));
+            expectEquals (
+                deck[1].text,
+                juce::String ("High-frequency activity is low. Try hats, noise, shimmer, or top percussion."));
+            expectEquals (
+                deck[2].text,
+                juce::String ("Rhythmic density barely changes. Add a fill, mute drums for a bar, or introduce percussion later."));
+        }
+
+        beginTest ("no rule hit ⇒ deterministic fallback deck");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 55;
+            m.highBandShare = 0.34f;
+            m.midBandShare = 0.33f;
+            m.lowBandShare = 0.33f;
+            m.transientVariation = 5.0e-4f;
+            m.stereoWidthApplicable = false;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expectEquals (
+                deck[0].text,
+                juce::String ("Consider opening space with a short breakdown before the loop repeats."));
+            expectEquals (
+                deck[1].text,
+                juce::String ("Try varying dynamics on one layer each cycle so the phrase breathes."));
+            expectEquals (
+                deck[2].text,
+                juce::String ("Experiment with muting one mid-range element for the final bars."));
+        }
+
+        beginTest ("stereo rule suppressed when stereo not applicable");
+        {
+            LoopMetrics m {};
+            m.staticnessScore = 55;
+            m.highBandShare = 0.34f;
+            m.midBandShare = 0.33f;
+            m.lowBandShare = 0.33f;
+            m.transientVariation = 5.0e-4f;
+            m.stereoWidthApplicable = false;
+            m.stereoWidthTrend = 0.f;
+
+            auto deck = SuggestionEngine::run (m);
+
+            expect (! deck[0].text.contains ("Stereo width"));
+            expect (! deck[1].text.contains ("Stereo width"));
+            expect (! deck[2].text.contains ("Stereo width"));
+        }
+
+        beginTest ("deck always has three non-empty lines");
+        {
+            LoopMetrics m {};
+            auto deck = SuggestionEngine::run (m);
+
+            expect (! deck[0].text.isEmpty());
+            expect (! deck[1].text.isEmpty());
+            expect (! deck[2].text.isEmpty());
+        }
+    }
+};
+
+static SuggestionEngineTests suggestionEngineTests;
 
 } // namespace loopbreaker
 
