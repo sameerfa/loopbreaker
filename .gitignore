@@ -1,0 +1,8 @@
+/build/
+/.vscode/
+.idea/
+CMakeUserPresets.json
+*.xcuserdatad/
+
+# Vendored JUCE (populate via submodule or clone — remove this line once using `git submodule add`)
+/third_party/JUCE/
